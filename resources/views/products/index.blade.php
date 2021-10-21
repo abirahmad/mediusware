@@ -8,14 +8,17 @@
 
 
     <div class="card">
-        <form action="" method="get" class="card-header">
+        <form action="{{ route('product.index') }}" method="get" class="card-header" id="product_form">
             <div class="form-row justify-content-between">
                 <div class="col-md-2">
-                    <input type="text" name="title" placeholder="Product Title" class="form-control">
+                    <input type="text" name="product_name" id="product_name" placeholder="Product Title" class="form-control">
                 </div>
                 <div class="col-md-2">
-                    <select name="variant" id="" class="form-control">
-
+                    <select name="variation_id" id="variation_id" class="form-control">
+                        <option value="all">Please Select</option>
+                        @foreach ($variations as $variation)
+                            <option value="{{ $variation->id }}">{{ $variation->variant }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -24,7 +27,8 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">Price Range</span>
                         </div>
-                        <input type="text" name="price_from" aria-label="First name" placeholder="From" class="form-control">
+                        <input type="text" name="price_from" aria-label="First name" placeholder="From"
+                            class="form-control">
                         <input type="text" name="price_to" aria-label="Last name" placeholder="To" class="form-control">
                     </div>
                 </div>
@@ -38,63 +42,56 @@
         </form>
 
         <div class="card-body">
-            <div class="table-response">
-                <table class="table">
+            <div class="table-responsive product-table">
+                <table class="table table-striped table-bordered display ajax_view" id="products_table">
                     <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Variant</th>
-                        <th width="150px">Action</th>
-                    </tr>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Variants</th>
+                            <th width="100">Action</th>
+                        </tr>
                     </thead>
-
-                    <tbody>
-
-                    <tr>
-                        <td>1</td>
-                        <td>T-Shirt <br> Created at : 25-Aug-2020</td>
-                        <td>Quality product in low cost</td>
-                        <td>
-                            <dl class="row mb-0" style="height: 80px; overflow: hidden" id="variant">
-
-                                <dt class="col-sm-3 pb-0">
-                                    SM/ Red/ V-Nick
-                                </dt>
-                                <dd class="col-sm-9">
-                                    <dl class="row mb-0">
-                                        <dt class="col-sm-4 pb-0">Price : {{ number_format(200,2) }}</dt>
-                                        <dd class="col-sm-8 pb-0">InStock : {{ number_format(50,2) }}</dd>
-                                    </dl>
-                                </dd>
-                            </dl>
-                            <button onclick="$('#variant').toggleClass('h-auto')" class="btn btn-sm btn-link">Show more</button>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{{ route('product.edit', 1) }}" class="btn btn-success">Edit</a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    </tbody>
-
                 </table>
-            </div>
-
-        </div>
-
-        <div class="card-footer">
-            <div class="row justify-content-between">
-                <div class="col-md-6">
-                    <p>Showing 1 to 10 out of 100</p>
-                </div>
-                <div class="col-md-2">
-
-                </div>
             </div>
         </div>
     </div>
 
+    <script>
+        // $('#product_form #variation_id #product_form #product_name').change(function() {
+        //     alert('Hello');
+        //     products_table.ajax.reload();
+        // });
+        products_table=$('table#products_table').DataTable({
+            dom: 'Blfrtip',
+            language: {
+                processing: "<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Loading Data..."
+            },
+            processing: true,
+            serverSide: true,
+            url: '/product',
+            aLengthMenu: [
+                [25, 50, 100, 1000, -1],
+                [25, 50, 100, 1000, "All"]
+            ],
+            buttons: ['excel', 'pdf', 'print'],
+            columns: [{
+                    data: 'title',
+                    name: 'title'
+                },
+                {
+                    data: 'description',
+                    name: 'description'
+                },
+                {
+                    data: 'variant',
+                    name: 'variant'
+                },
+                {
+                    data: 'action',
+                    name: 'action'
+                }
+            ]
+        });
+    </script>
 @endsection

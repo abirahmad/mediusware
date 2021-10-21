@@ -10,4 +10,8 @@ class Product extends Model
         'title', 'sku', 'description'
     ];
 
+     public function variant(){
+        return $this->hasMany('App\Models\ProductVariant', 'product_id', 'id');
+    }
+
 }
