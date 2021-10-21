@@ -7,6 +7,7 @@ use App\Models\ProductVariant;
 use App\Models\ProductVariantPrice;
 use App\Models\Variant;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -66,7 +67,11 @@ class ProductController extends Controller
 
                 ->editColumn('title', function ($row) {
                     $now = Carbon::now();
-                    $diffHours = $row->created_at->diffForHumans($now);
+                    if(!is_null($row->created_at)){
+                        $diffHours = $row->created_at->diffForHumans($now);
+                    }else{
+                        $diffHours=null;
+                    }
                     $html = $row->title . ' ';
                     $html .= 'created_at:' . $diffHours;
                     return $html;
@@ -126,6 +131,59 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+    //    try{
+        $this->validate($request,[
+            'title'=>'required',
+            'sku'=>'required'
+
+        ]);
+        DB::beginTransaction();
+        $product=Product::insertGetId([
+            'title'=>$request->title,
+            'sku'=>$request->sku,
+            'description'=>$request->description,
+            'created_at'=>Carbon::now(),
+            'updated_at'=>Carbon::now(),
+        ]);
+        $variant_input = [];
+        $price_input=[];
+        foreach($request->product_variant as $variant){
+           foreach($variant['tags'] as $tag){
+             $item=array(
+                 'variant_id'=>$variant['option'],
+                 'product_id'=>$product,
+                 'variant'=>$tag,
+             );
+             array_push($variant_input, $item);
+             foreach($request->product_variant_prices as $variant_price){
+                $item_price=array(
+                    'product_variant_one'=>$tag,
+                    'product_variant_two'=>$tag,
+                    'product_variant_three'=>$tag,
+                    'price'=>$variant_price['price'],
+                    'stock'=>$variant_price['stock'],
+                    'product_id'=>$product,
+                );
+            }
+            array_push($price_input, $item_price);
+           }
+        }
+        ProductVariant::insert($variant_input);
+        ProductVariantPrice::insert($price_input);
+
+        
+
+        DB::commit();
+        return response()->json([
+            'message'=>'Product Created Successfully',
+            'data'=>$product,
+        ]);
+
+    //    }catch(Exception $e){
+    //        return response()->json([
+    //            'message'=>$e->getMessage(),
+    //        ]);
+    //    }
     }
 
 

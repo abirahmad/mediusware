@@ -10,7 +10,7 @@
                         </div>
                         <div class="form-group">
                             <label for="">Product SKU</label>
-                            <input type="text" v-model="product_sku" placeholder="Product Name" class="form-control">
+                            <input type="text" v-model="product_sku" placeholder="Product Sku" class="form-control">
                         </div>
                         <div class="form-group">
                             <label for="">Description</label>
@@ -126,7 +126,7 @@ export default {
             ],
             product_variant_prices: [],
             dropzoneOptions: {
-                url: 'https://httpbin.org/post',
+                url: '/product',
                 thumbnailWidth: 150,
                 maxFilesize: 0.5,
                 headers: {"My-Awesome-Header": "header value"}
@@ -149,6 +149,7 @@ export default {
 
         // check the variant and render all the combination
         checkVariant() {
+            alert('hello');
             let tags = [];
             this.product_variant_prices = [];
             this.product_variant.filter((item) => {
